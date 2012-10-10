@@ -1,4 +1,4 @@
-# nyt 
+# node-nyt 
 
 A simple Node.js module for working with the [New York Times Developer API](http://developer.nytimes.com).
 
@@ -6,7 +6,7 @@ A simple Node.js module for working with the [New York Times Developer API](http
 
 Secure a [NY Times Developer API Key](http://developer.nytimes.com/apps/register)
 
-Require nyt:
+Require node-nyt:
   
     var nyt = require('nyt');
 
