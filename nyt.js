@@ -1,7 +1,6 @@
 var request = require('request');
 var _ = require('underscore');
 
-var API_SERVER = 'api.nytimes.com';
 var API_KEY = process.env.NYTIMES_API_KEY || undefined;
 var ARTICLES_API_KEY;
 var CAMPAIGN_FINANCE_API_KEY;
@@ -35,13 +34,7 @@ exports.settings = {
     bestSellers: BEST_SELLERS_API_KEY || undefined
   },
 
-  apiServer: function (server) {
-    if (server) {
-      API_SERVER = server;
-    } else {
-      return API_SERVER;
-    }
-  }
+  APIServer: 'api.nytimes.com'
 };
 
 exports.articles = function(params, callback) {
@@ -87,7 +80,7 @@ function setFinanceParams(params) {
 }
 
 function buildRequestURL(path) {
-  return 'http://' + API_SERVER + path;
+  return 'http://' + exports.settings.APIServer + path;
 }
 
 function invoke(path, params, callback) {

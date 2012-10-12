@@ -60,26 +60,19 @@ describe("nyt", function() {
       });
     });
     
-    describe("#apiServer", function () {
-      it("exists as a function on the settings object", function () {
-        expect(typeof nyt.settings.apiServer).to.eql('function');
+    describe("#APIServer", function () {
+      it("exists as a property on the settings object", function () {
+        expect(typeof nyt.settings.APIServer).to.eql('string');
       });
 
-      it("returns the developer's API key if it is passed no arguments and the API key has been set", function () {
-        nyt.settings.apiServer('some_site.com');
-        expect(nyt.settings.apiServer()).to.eql('some_site.com');
-      });
-      
-      it("sets the developer's API key to the value of the string it is passed", function () {
-        nyt.settings.apiServer('another_site.com');
-        expect(nyt.settings.apiServer()).to.eql('another_site.com');
+      it("returns 'api.nytimes.com' by default", function () {
+        expect(nyt.settings.APIServer).to.eql('api.nytimes.com');
       });
     });
   });
 
   describe("#articles", function () {
     beforeEach(function (done) {
-      nyt.settings.apiServer('api.nytimes.com');
       nyt.settings.apiKey('some_key');
       done();
     });
@@ -113,7 +106,6 @@ describe("nyt", function() {
 
   describe("#campaignFinance", function () {
     beforeEach(function (done) {
-      nyt.settings.apiServer('api.nytimes.com');
       nyt.settings.apiKey('some_key');
       done();
     });
@@ -158,7 +150,6 @@ describe("nyt", function() {
 
   describe("#bestSellers", function () {
     beforeEach(function (done) {
-      nyt.settings.apiServer('api.nytimes.com');
       nyt.settings.apiKey('some_key');
       done();
     });
