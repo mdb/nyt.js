@@ -8,6 +8,42 @@ describe("nyt", function() {
       expect(typeof nyt.settings).to.eql('object');
     });
 
+    describe("#getAPIKey", function () {
+      it("sets the corresponding object property in settings.APIKeys to the value is passed", function () {
+        nyt.settings.setAPIKey({'articles': 'bar'});
+        expect(nyt.settings.getAPIKey('articles')).to.eql('bar');
+        nyt.settings.setAPIKey({'articles': 'foo'});
+        expect(nyt.settings.getAPIKey('articles')).to.eql('foo');
+      });
+      
+      it("does not fail if the property does not already exist", function () {
+        nyt.settings.setAPIKey({fakeProp: 'fakeVal'});
+        expect(nyt.settings.getAPIKey('fakeProp')).to.eql('fakeVal');
+      });
+    });
+
+    describe("#getAPIKey", function () {
+      it("returns undefined if the string it is passed has not been set as an API key property in settings", function () {
+        expect(nyt.settings.getAPIKey('nonExistant')).to.eql(undefined);
+      });      
+      
+      it("returns undefined if the string it is passed has not been set as an API key property in settings", function () {
+        expect(nyt.settings.setAPIKey({articles:'articlesKey'}));
+        expect(nyt.settings.getAPIKey('articles')).to.eql('articlesKey');
+      });
+
+      it("returns all the API keys if it is not passed any arguments", function () {
+        nyt.settings.APIKeys = {};
+        var keys = {
+          articles: 'a',
+          cammpaignFinance: 'b',
+          bestSellers: 'c'
+        };
+        nyt.settings.setAPIKey(keys);
+        expect(nyt.settings.getAPIKey()).to.eql(keys);
+      });
+    });
+
     describe("#apiKey", function () {
       it("exists as a function on the settings object", function () {
         expect(typeof nyt.settings.apiKey).to.eql('function');
@@ -117,6 +153,18 @@ describe("nyt", function() {
         expect(r).to.eql({'finance_key':'finance_value'});
         done();
       });
+    });
+  });
+
+  describe("#bestSellers", function () {
+    beforeEach(function (done) {
+      nyt.settings.apiServer('api.nytimes.com');
+      nyt.settings.apiKey('some_key');
+      done();
+    });
+
+    it("exists as a method of nyt", function () {
+      expect(typeof nyt.bestSellers).to.eql('function');
     });
   });
 });

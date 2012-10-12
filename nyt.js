@@ -3,6 +3,9 @@ var _ = require('underscore');
 
 var API_SERVER = 'api.nytimes.com';
 var API_KEY = process.env.NYTIMES_API_KEY || undefined;
+var ARTICLES_API_KEY;
+var CAMPAIGN_FINANCE_API_KEY;
+var BEST_SELLERS_API_KEY;
 
 exports.settings = {
   apiKey: function (key) {
@@ -12,6 +15,24 @@ exports.settings = {
     } else {
       return API_KEY;
     }
+  },
+
+  getAPIKey: function(key) {
+    if (!key) {
+      return exports.settings.APIKeys;
+    } else {
+      return exports.settings.APIKeys[key];
+    }
+  },
+
+  setAPIKey: function(keyValObj) {
+    _.extend(exports.settings.APIKeys, keyValObj);  
+  },
+
+  APIKeys: {
+    articles: ARTICLES_API_KEY || undefined,
+    campaignFinance: CAMPAIGN_FINANCE_API_KEY || undefined,
+    bestSellers: BEST_SELLERS_API_KEY || undefined
   },
 
   apiServer: function (server) {
@@ -37,7 +58,18 @@ exports.campaignFinance = function(params, callback) {
   invoke('/svc/elections/us/v3/finances/' + year + '/candidates/search.json', paramsObj, callback);
 };
 
+exports.bestSellers = function(params, callback) {
+  var author = params.author ? params.author : '';
+
+  invoke('/svc/books/v2/lists/' + author + '.json', params, callback);
+};
+
 // helpers
+function getAuthorName(name) {
+  var nameArr = name.split(" ");
+  return nameArr.pop();
+}
+
 function setArticlesParams(params) {
   var newObj = _.extend(params, {'format':'json'});
 
