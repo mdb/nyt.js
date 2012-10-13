@@ -4,6 +4,8 @@
 
 A simple Node.js module for working with the [New York Times Developer API](http://developer.nytimes.com).
 
+...still a work in progress. A bit rough around the edges.
+
 ## Getting Started
 
 Secure a [NY Times Developer API Key](http://developer.nytimes.com/apps/register)
