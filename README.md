@@ -17,8 +17,8 @@ Require and instantiate node-nyt:
 Set your API keys via nyt:
 
     nyt.settings.articlesAPIKey = 'YOUR KEY';
-    nyt.settings.campaignFinanceKey = 'YOUR KEY';
-    nyt.settings.bestSellersKey = 'YOUR KEY';
+    nyt.settings.campaignFinanceAPIKey = 'YOUR KEY';
+    nyt.settings.bestSellersAPIKey = 'YOUR KEY';
 
 Alternatively, you can set API keys on instantiation:
 
