@@ -1,112 +1,132 @@
-var nyt = require('../nyt.js');
 var nock = require('nock');
 var expect = require('expect.js');
 
-describe("nyt", function() {
+describe("NYT", function() {
+  var nyt;
+
   describe("#settings", function () {
-    it("exists as a public object on nyt", function () {
+
+    it("exists as a public object on an NYT instance", function () {
+      nyt = require('../nyt')();
       expect(typeof nyt.settings).to.eql('object');
     });
-
-    describe("#getAPIKey", function () {
-      it("sets the corresponding object property in settings.APIKeys to the value is passed", function () {
-        nyt.settings.setAPIKey({'articles': 'bar'});
-        expect(nyt.settings.getAPIKey('articles')).to.eql('bar');
-        nyt.settings.setAPIKey({'articles': 'foo'});
-        expect(nyt.settings.getAPIKey('articles')).to.eql('foo');
-      });
-      
-      it("does not fail if the property does not already exist", function () {
-        nyt.settings.setAPIKey({fakeProp: 'fakeVal'});
-        expect(nyt.settings.getAPIKey('fakeProp')).to.eql('fakeVal');
-      });
-    });
-
-    describe("#getAPIKey", function () {
-      it("returns undefined if the string it is passed has not been set as an API key property in settings", function () {
-        expect(nyt.settings.getAPIKey('nonExistant')).to.eql(undefined);
-      });      
-      
-      it("returns undefined if the string it is passed has not been set as an API key property in settings", function () {
-        expect(nyt.settings.setAPIKey({articles:'articlesKey'}));
-        expect(nyt.settings.getAPIKey('articles')).to.eql('articlesKey');
-      });
-
-      it("returns all the API keys if it is not passed any arguments", function () {
-        nyt.settings.APIKeys = {};
-        var keys = {
-          articles: 'a',
-          cammpaignFinance: 'b',
-          bestSellers: 'c'
-        };
-        nyt.settings.setAPIKey(keys);
-        expect(nyt.settings.getAPIKey()).to.eql(keys);
-      });
-    });
-
-    describe("#apiKey", function () {
-      it("exists as a function on the settings object", function () {
-        expect(typeof nyt.settings.apiKey).to.eql('function');
-      });
-
-      it("returns the developer's API key if it is passed no arguments and the API key has been set", function () {
-        nyt.settings.apiKey('foo');
-        expect(nyt.settings.apiKey()).to.eql('foo');
-      });
-      
-      it("sets the developer's API key to the value of the string it is passed", function () {
-        nyt.settings.apiKey('some_key');
-        expect(nyt.settings.apiKey()).to.eql('some_key');
-      });
+    
+    it("is set to the value of the prototype's defaultSettings if no settings have been passed", function () {
+      nyt = require('../nyt')();
+      expect(nyt.settings.articlesAPIKey).to.eql(undefined);
+      expect(nyt.settings.campaignFinanceAPIKey).to.eql(undefined);
+      expect(nyt.settings.bestSellersAPIKey).to.eql(undefined);
+      expect(nyt.settings.APIServer).to.eql('api.nytimes.com');
     });
     
-    describe("#APIServer", function () {
-      it("exists as a property on the settings object", function () {
-        expect(typeof nyt.settings.APIServer).to.eql('string');
-      });
+    it("is set to the value of the options it's passed on instantiation merged with the default settings", function () {
+      nyt = require('../nyt')({articlesAPIKey: 'blah'});
+      expect(nyt.settings.articlesAPIKey).to.eql('blah');
+      expect(nyt.settings.campaignFinanceAPIKey).to.eql(undefined);
+      expect(nyt.settings.bestSellersAPIKey).to.eql(undefined);
+    });
+  });
 
-      it("returns 'api.nytimes.com' by default", function () {
-        expect(nyt.settings.APIServer).to.eql('api.nytimes.com');
-      });
+  describe("#defaultSettings", function () {
+    it("exits as a public object on an NYT instances", function () {
+      nyt = require('../nyt')();
+      expect(nyt.defaultSettings.articlesAPIKey).to.eql(undefined);
+      expect(nyt.defaultSettings.campaignFinanceAPIKey).to.eql(undefined);
+      expect(nyt.defaultSettings.bestSellersAPIKey).to.eql(undefined);
+      expect(nyt.defaultSettings.APIServer).to.eql('api.nytimes.com');
     });
   });
 
   describe("#articles", function () {
-    beforeEach(function (done) {
-      nyt.settings.apiKey('some_key');
-      done();
-    });
-
-    it("exists as method of nyt", function () {
-      expect(typeof nyt.articles).to.eql('function');
-    });
-
-    it("calls the correct URL and gets the response body", function (done) {
-      nock('http://api.nytimes.com')
-        .get('/svc/search/v1/article?api-key=some_key&query=some_search&format=json')
-        .reply(200, {'some_key':'some_value'});
-
-      nyt.articles({'query': 'some_search'}, function(r) {
-        expect(r).to.eql({'some_key':'some_value'});
+    context("NYT is instantiated with an options object", function () {
+      beforeEach(function (done) {
+        nyt = require('../nyt')({articlesAPIKey: 'articlesAPIKey'});
         done();
+      });
+
+      it("exists as method of the NYT prototype", function () {
+        expect(typeof nyt.articles).to.eql('function');
+      });
+
+      it("calls the correct URL and gets the response body", function (done) {
+        nock('http://api.nytimes.com')
+          .get('/svc/search/v1/article?query=some_search&api-key=articlesAPIKey&format=json')
+          .reply(200, {'some_key':'some_value'});
+
+        nyt.articles({'query': 'some_search'}, function(r) {
+          expect(r).to.eql({'some_key':'some_value'});
+          done();
+        });
+      });
+
+      it("passes along all query params to the request URL", function (done) {
+        nock('http://api.nytimes.com')
+          .get('/svc/search/v1/article?query=some_search&foo=bar&api-key=articlesAPIKey&format=json')
+          .reply(200, {'foo':'bar'});
+
+        nyt.articles({'query': 'some_search', 'foo': 'bar'}, function(r) {
+          expect(r).to.eql({'foo':'bar'});
+          done();
+        });
       });
     });
 
-    it("passes along all query params to the request URL", function (done) {
-      nock('http://api.nytimes.com')
-        .get('/svc/search/v1/article?api-key=some_key&query=some_search&foo=bar&format=json')
-        .reply(200, {'foo':'bar'});
-
-      nyt.articles({'query': 'some_search', 'foo': 'bar'}, function(r) {
-        expect(r).to.eql({'foo':'bar'});
+    context("NYT is instantiated with an options object", function () {
+      beforeEach(function (done) {
+        nyt = require('../nyt')({articlesAPIKey: 'articlesAPIKey'});
         done();
+      });
+
+      it("exists as method of the NYT prototype", function () {
+        expect(typeof nyt.articles).to.eql('function');
+      });
+
+      it("calls the correct URL and gets the response body", function (done) {
+        nock('http://api.nytimes.com')
+          .get('/svc/search/v1/article?query=some_search&api-key=articlesAPIKey&format=json')
+          .reply(200, {'some_key':'some_value'});
+
+        nyt.articles({'query': 'some_search'}, function(r) {
+          expect(r).to.eql({'some_key':'some_value'});
+          done();
+        });
+      });
+
+      it("passes along all query params to the request URL", function (done) {
+        nock('http://api.nytimes.com')
+          .get('/svc/search/v1/article?query=some_search&foo=bar&api-key=articlesAPIKey&format=json')
+          .reply(200, {'foo':'bar'});
+
+        nyt.articles({'query': 'some_search', 'foo': 'bar'}, function(r) {
+          expect(r).to.eql({'foo':'bar'});
+          done();
+        });
+      });
+    });
+
+    context("NYT is not instantiated with an options object", function () {
+      beforeEach(function (done) {
+        nyt = require('../nyt')();
+        done();
+      });
+
+      it("exists as method of the NYT prototype", function () {
+        expect(typeof nyt.articles).to.eql('function');
+      });
+
+      // WIP
+      xit("throws an an error specifying that an API key has not been set", function (done) {
+        nyt.articles({'query': 'some_search'}, function(r) {
+          expect(r).to.throwError("Error: No API Key specified");
+          done();
+        });
       });
     });
   });
 
   describe("#campaignFinance", function () {
     beforeEach(function (done) {
-      nyt.settings.apiKey('some_key');
+      nyt = require('../nyt')({campaignFinanceAPIKey: 'campaignFinanceKey'});
       done();
     });
 
@@ -114,48 +134,73 @@ describe("nyt", function() {
       expect(typeof nyt.campaignFinance).to.eql('function');
     });
 
-    it("calls the correct URL, defaulting to the 2012 election cycle, and gets the response body", function (done) {
-      nock('http://api.nytimes.com')
-        .get('/svc/elections/us/v3/finances/2012/candidates/search.json?api-key=some_key&query=some_search')
-        .reply(200, {'finance_key':'finance_value'});
+    context("NYT is instantiated with a campaign finance API key", function () {
+      it("calls the correct URL, defaulting to the 2012 election cycle, and gets the response body", function (done) {
+        nock('http://api.nytimes.com')
+          .get('/svc/elections/us/v3/finances/2012/candidates/search.json?query=some_search&api-key=campaignFinanceKey')
+          .reply(200, {'finance_key':'finance_value'});
 
-      nyt.campaignFinance({'query': 'some_search'}, function(r) {
-        expect(r).to.eql({'finance_key':'finance_value'});
-        done();
+        nyt.campaignFinance({'query': 'some_search'}, function(r) {
+          expect(r).to.eql({'finance_key':'finance_value'});
+          done();
+        });
       });
-    });
-    
-    it("allows a developer to override the default '2012' election cycle", function (done) {
-      nock('http://api.nytimes.com')
-        .get('/svc/elections/us/v3/finances/2000/candidates/search.json?api-key=some_key&query=some_search')
-        .reply(200, {'finance_key':'finance_value'});
+      
+      it("allows a developer to override the default '2012' election cycle", function (done) {
+        nock('http://api.nytimes.com')
+          .get('/svc/elections/us/v3/finances/2000/candidates/search.json?query=some_search&api-key=campaignFinanceKey')
+          .reply(200, {'finance_key':'finance_value'});
 
-      nyt.campaignFinance({'query': 'some_search', 'cycle': '2000'}, function(r) {
-        expect(r).to.eql({'finance_key':'finance_value'});
-        done();
+        nyt.campaignFinance({'query': 'some_search', 'cycle': '2000'}, function(r) {
+          expect(r).to.eql({'finance_key':'finance_value'});
+          done();
+        });
       });
-    });
-    
-    it("passes along all query params to the request URL", function (done) {
-      nock('http://api.nytimes.com')
-        .get('/svc/elections/us/v3/finances/2012/candidates/search.json?api-key=some_key&query=some_search&some_other_query=some_other_value')
-        .reply(200, {'finance_key':'finance_value'});
+      
+      it("passes along all query params to the request URL", function (done) {
+        nock('http://api.nytimes.com')
+          .get('/svc/elections/us/v3/finances/2012/candidates/search.json?query=some_search&some_other_query=some_other_value&api-key=campaignFinanceKey')
+          .reply(200, {'finance_key':'finance_value'});
 
-      nyt.campaignFinance({'query': 'some_search', 'some_other_query': 'some_other_value'}, function(r) {
-        expect(r).to.eql({'finance_key':'finance_value'});
-        done();
+        nyt.campaignFinance({'query': 'some_search', 'some_other_query': 'some_other_value'}, function(r) {
+          expect(r).to.eql({'finance_key':'finance_value'});
+          done();
+        });
       });
     });
   });
 
   describe("#bestSellers", function () {
-    beforeEach(function (done) {
-      nyt.settings.apiKey('some_key');
-      done();
-    });
-
     it("exists as a method of nyt", function () {
       expect(typeof nyt.bestSellers).to.eql('function');
+    });
+
+    context("NYT is instantiated with a bestSellersAPIKey", function () {
+      beforeEach(function (done) {
+        nyt = require('../nyt')({bestSellersAPIKey: 'bestSellersKey'});
+        done();
+      });
+
+      it("calls the correct URL and gets the response body", function (done) {
+        nock('http://api.nytimes.com')
+          .get('/svc/books/v2/lists/vonnegut.json?query=some_search&api-key=bestSellersKey')
+          .reply(200, {'body':'response_body'});
+
+        nyt.bestSellers({'author': 'vonnegut', 'query': 'some_search'}, function(r) {
+          expect(r).to.eql({'body':'response_body'});
+          done();
+        });
+      });
+      
+      //WIP
+      context("it is not passed an author", function () {
+        
+      });
+
+      //WIP
+      context("NYT is not instantiated with a bestSellersAPIKey", function () {
+        
+      });
     });
   });
 });

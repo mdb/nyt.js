@@ -1,61 +1,76 @@
 var request = require('request');
 var _ = require('underscore');
+var that;
 
-var API_KEY = process.env.NYTIMES_API_KEY || undefined;
-var ARTICLES_API_KEY;
-var CAMPAIGN_FINANCE_API_KEY;
-var BEST_SELLERS_API_KEY;
+function NYT(opts) {
+  this.defaultSettings = {
+    articlesAPIKey: undefined,
+    campaignFinanceAPIKey: undefined,
+    bestSellersAPIKey: undefined,
+    APIServer: 'api.nytimes.com' 
+  };
 
-exports.settings = {
-  apiKey: function (key) {
-    if (key) {
-      API_KEY = key;
-      return API_KEY;
-    } else {
-      return API_KEY;
-    }
-  },
+  this.settings = opts ? _.defaults(opts, this.defaultSettings) : this.defaultSettings;
+  that = this;
+}
 
-  getAPIKey: function(key) {
-    if (!key) {
-      return exports.settings.APIKeys;
-    } else {
-      return exports.settings.APIKeys[key];
-    }
-  },
+NYT.prototype.articles = function (params, callback) {
+  var defaultParams = {
+    'api-key': that.settings.articlesAPIKey,
+    'format': 'json'
+  };
+  var paramsObj = _.defaults(params, defaultParams);
 
-  setAPIKey: function(keyValObj) {
-    _.extend(exports.settings.APIKeys, keyValObj);  
-  },
-
-  APIKeys: {
-    articles: ARTICLES_API_KEY || undefined,
-    campaignFinance: CAMPAIGN_FINANCE_API_KEY || undefined,
-    bestSellers: BEST_SELLERS_API_KEY || undefined
-  },
-
-  APIServer: 'api.nytimes.com'
+  if (!paramsObj['api-key']) {
+    throw new Error('No API Key specified');
+  } else {
+    invoke('/svc/search/v1/article', paramsObj, callback);
+  }
 };
 
-exports.articles = function(params, callback) {
-  var paramsObj = setArticlesParams(params);
-
-  invoke('/svc/search/v1/article', paramsObj, callback);
-};
-
-//EX: http://api.nytimes.com/svc/elections/us/v3/finances/2012/candidates/search.json?query=bush&api-key=####
-exports.campaignFinance = function(params, callback) {
+NYT.prototype.campaignFinance = function (params, callback) {
+  var defaultParams = {
+    'api-key': that.settings.campaignFinanceAPIKey
+  };
+  var paramsObj = _.defaults(params, defaultParams);
   var year = params.cycle ? params.cycle : '2012';
-  var paramsObj = setFinanceParams(params);
 
-  invoke('/svc/elections/us/v3/finances/' + year + '/candidates/search.json', paramsObj, callback);
+  // clean cycle from the params
+  if (paramsObj.cycle) {
+    delete paramsObj.cycle;
+  }
+
+  if (!paramsObj['api-key']) {
+    throw new Error('No API Key specified');
+  } else {
+    invoke('/svc/elections/us/v3/finances/' + year + '/candidates/search.json', paramsObj, callback);
+  }
 };
 
-exports.bestSellers = function(params, callback) {
-  var author = params.author ? params.author : '';
+NYT.prototype.bestSellers = function (params, callback) {
+  var defaultParams = {
+    'api-key': that.settings.bestSellersAPIKey
+  };
+  var paramsObj = _.defaults(params, defaultParams);
+  var author = params.author ? getAuthorName(params.author) : undefined;
 
-  invoke('/svc/books/v2/lists/' + author + '.json', params, callback);
+  // clean author from the params
+  if (paramsObj.author) {
+    delete paramsObj.author;
+  }
+
+  if (!paramsObj['api-key']) {
+    throw new Error('No API Key specified');
+  } else if (!author) {
+    throw new Error('No author specified.');
+  } else {
+    invoke('/svc/books/v2/lists/' + author + '.json', paramsObj, callback);
+  }
 };
+
+module.exports = function(opts) {
+  return new NYT(opts);
+}
 
 // helpers
 function getAuthorName(name) {
@@ -63,34 +78,14 @@ function getAuthorName(name) {
   return nameArr.pop();
 }
 
-function setArticlesParams(params) {
-  var newObj = _.extend(params, {'format':'json'});
-
-  return newObj;
-}
-
-function setFinanceParams(params) {
-  var paramsObj = params;
-
-  if (paramsObj.cycle) {
-    delete paramsObj.cycle;
-  }
-
-  return paramsObj;
-}
-
 function buildRequestURL(path) {
-  return 'http://' + exports.settings.APIServer + path;
+  return 'http://' + that.settings.APIServer + path;
 }
 
 function invoke(path, params, callback) {
   var url = buildRequestURL(path);
-  var paramsObj = {
-    'api-key': API_KEY
-  };
 
-  _.extend(paramsObj, params);
-  request(url, {qs: paramsObj}, function (error, response, body) {
+  request(url, {qs: params}, function (error, response, body) {
     callback(JSON.parse(body));
   });
 }
