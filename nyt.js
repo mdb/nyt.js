@@ -49,14 +49,24 @@ NYT.prototype.campaignFinance = function (params, callback) {
 
 NYT.prototype.bestSellers = function (params, callback) {
   var defaultParams = {
+    'offset': '',
+    'sortby': '',
+    'sortorder': '',
+    'date': '',
     'api-key': that.settings.bestSellersAPIKey
   };
   var paramsObj = _.defaults(params, defaultParams);
-  var author = params.author ? getAuthorName(params.author) : undefined;
+  var author = params.author ? getFormattedAuthorName(params.author) : undefined;
+  var date = params.date ? params.date : '';
 
   // clean author from the params
   if (paramsObj.author) {
     delete paramsObj.author;
+  }
+  
+  // clean date from the params
+  if (paramsObj.date || paramsObj.date === '') {
+    delete paramsObj.date;
   }
 
   if (!paramsObj['api-key']) {
@@ -64,7 +74,7 @@ NYT.prototype.bestSellers = function (params, callback) {
   } else if (!author) {
     throw new Error('No author specified.');
   } else {
-    invoke('/svc/books/v2/lists/' + author + '.json', paramsObj, callback);
+    invoke('/svc/books/v2/lists/' + date + '/' + author + '.json', paramsObj, callback);
   }
 };
 
@@ -73,9 +83,8 @@ module.exports = function(opts) {
 }
 
 // helpers
-function getAuthorName(name) {
-  var nameArr = name.split(" ");
-  return nameArr.pop();
+function getFormattedAuthorName(name) {
+  return name.replace(" ", "+");
 }
 
 function buildRequestURL(path) {

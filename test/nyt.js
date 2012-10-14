@@ -183,15 +183,37 @@ describe("NYT", function() {
 
       it("calls the correct URL and gets the response body", function (done) {
         nock('http://api.nytimes.com')
-          .get('/svc/books/v2/lists/vonnegut.json?query=some_search&api-key=bestSellersKey')
+          .get('/svc/books/v2/lists//vonnegut.json?offset=&sortby=&sortorder=&api-key=bestSellersKey')
           .reply(200, {'body':'response_body'});
 
-        nyt.bestSellers({'author': 'vonnegut', 'query': 'some_search'}, function(r) {
+        nyt.bestSellers({'author': 'vonnegut'}, function(r) {
           expect(r).to.eql({'body':'response_body'});
           done();
         });
       });
+
+      it("replaces spaces with '+' in an author's name before making the API call", function (done) {
+        nock('http://api.nytimes.com')
+          .get('/svc/books/v2/lists//kurt+vonnegut.json?offset=&sortby=&sortorder=&api-key=bestSellersKey')
+          .reply(200, {'body':'response_body'});
+
+        nyt.bestSellers({'author': 'kurt vonnegut'}, function(r) {
+          expect(r).to.eql({'body':'response_body'});
+          done();
+        });
+      });      
       
+      it("injects a date string into the URL if one is specified in the params", function (done) {
+        nock('http://api.nytimes.com')
+          .get('/svc/books/v2/lists/2012-01-01/kurt+vonnegut.json?offset=&sortby=&sortorder=&api-key=bestSellersKey')
+          .reply(200, {'body':'response_body'});
+
+        nyt.bestSellers({'author': 'kurt vonnegut', 'date': '2012-01-01'}, function(r) {
+          expect(r).to.eql({'body':'response_body'});
+          done();
+        });
+      });      
+
       //WIP
       context("it is not passed an author", function () {
         
