@@ -27,20 +27,15 @@ NYT.prototype.articles = function (params, callback) {
 
 NYT.prototype.campaignFinance = function (params, callback) {
   var defaultParams = {
-    'api-key': this.settings.campaignFinanceAPIKey
+    'api-key': this.settings.campaignFinanceAPIKey,
+    'request': 'candidateSearch'
   };
   var paramsObj = _.defaults(params, defaultParams);
-  var year = params.cycle ? params.cycle : '2012';
-
-  // clean cycle from the params
-  if (paramsObj.cycle) {
-    delete paramsObj.cycle;
-  }
 
   if (!paramsObj['api-key']) {
     throw new Error('No API Key specified');
   } else {
-    invoke('/svc/elections/us/v3/finances/' + year + '/candidates/search.json', paramsObj, callback);
+    invokeCampaignFinanceCall(paramsObj, callback);
   }
 };
 
@@ -77,9 +72,22 @@ NYT.prototype.bestSellers = function (params, callback) {
 
 module.exports = function(opts) {
   return new NYT(opts);
-}
+};
 
 // helpers
+function invokeCampaignFinanceCall(params, callback) {
+  var url;
+  var cycle = params.cycle ? params.cycle : '2012';
+
+  if (params.request === "candidateSearch") {
+    delete params.cycle;
+    delete params.request;
+    url = '/svc/elections/us/v3/finances/' + cycle + '/candidates/search.json';
+  }
+  
+  invoke(url, params, callback);
+}
+
 function getFormattedAuthorName(name) {
   return name.replace(" ", "+");
 }
