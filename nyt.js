@@ -1,22 +1,19 @@
 var request = require('request');
 var _ = require('underscore');
-var that;
 
 function NYT(opts) {
   this.defaultSettings = {
     articlesAPIKey: undefined,
     campaignFinanceAPIKey: undefined,
-    bestSellersAPIKey: undefined,
-    APIServer: 'api.nytimes.com' 
+    bestSellersAPIKey: undefined
   };
 
   this.settings = opts ? _.defaults(opts, this.defaultSettings) : this.defaultSettings;
-  that = this;
 }
 
 NYT.prototype.articles = function (params, callback) {
   var defaultParams = {
-    'api-key': that.settings.articlesAPIKey,
+    'api-key': this.settings.articlesAPIKey,
     'format': 'json'
   };
   var paramsObj = _.defaults(params, defaultParams);
@@ -30,7 +27,7 @@ NYT.prototype.articles = function (params, callback) {
 
 NYT.prototype.campaignFinance = function (params, callback) {
   var defaultParams = {
-    'api-key': that.settings.campaignFinanceAPIKey
+    'api-key': this.settings.campaignFinanceAPIKey
   };
   var paramsObj = _.defaults(params, defaultParams);
   var year = params.cycle ? params.cycle : '2012';
@@ -53,7 +50,7 @@ NYT.prototype.bestSellers = function (params, callback) {
     'sortby': '',
     'sortorder': '',
     'date': '',
-    'api-key': that.settings.bestSellersAPIKey
+    'api-key': this.settings.bestSellersAPIKey
   };
   var paramsObj = _.defaults(params, defaultParams);
   var author = params.author ? getFormattedAuthorName(params.author) : undefined;
@@ -88,7 +85,7 @@ function getFormattedAuthorName(name) {
 }
 
 function buildRequestURL(path) {
-  return 'http://' + that.settings.APIServer + path;
+  return 'http://api.nytimes.com' + path;
 }
 
 function invoke(path, params, callback) {

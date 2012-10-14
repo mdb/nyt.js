@@ -16,7 +16,6 @@ describe("NYT", function() {
       expect(nyt.settings.articlesAPIKey).to.eql(undefined);
       expect(nyt.settings.campaignFinanceAPIKey).to.eql(undefined);
       expect(nyt.settings.bestSellersAPIKey).to.eql(undefined);
-      expect(nyt.settings.APIServer).to.eql('api.nytimes.com');
     });
     
     it("is set to the value of the options it's passed on instantiation merged with the default settings", function () {
@@ -33,7 +32,6 @@ describe("NYT", function() {
       expect(nyt.defaultSettings.articlesAPIKey).to.eql(undefined);
       expect(nyt.defaultSettings.campaignFinanceAPIKey).to.eql(undefined);
       expect(nyt.defaultSettings.bestSellersAPIKey).to.eql(undefined);
-      expect(nyt.defaultSettings.APIServer).to.eql('api.nytimes.com');
     });
   });
 
