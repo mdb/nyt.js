@@ -10,17 +10,23 @@ A simple Node.js module for working with the [New York Times Developer API](http
 
 Secure a [NY Times Developer API Key](http://developer.nytimes.com/apps/register)
 
-Require node-nyt:
+Require and instantiate node-nyt:
   
-    var nyt = require('nyt');
+    var nyt = require('nyt')();
 
-Set your API key via nyt:
+Set your API keys via nyt:
 
-    nyt.settings.apiKey('YOUR KEY');
+    nyt.settings.articlesAPIKey = 'YOUR KEY';
+    nyt.settings.campaignFinanceKey = 'YOUR KEY';
+    nyt.settings.bestSellersKey = 'YOUR KEY';
 
-Or set your API key via an environment variable:
+Alternatively, you can set API keys on instantiation:
 
-    NYTIMES_API_KEY="YOUR KEY"
+    var nyt = require('nyt')({
+      articlesAPIKey: 'YOUR KEY',
+      campaignFinanceAPIKey: 'YOUR KEY',
+      bestSellersAPIKey: 'YOUR KEY'
+    });
 
 ## Example Usage
 
@@ -47,5 +53,19 @@ Browse the NY Times' campaign finance API for the term "obama" in 2012:
 Browse the NY Times' campaign finance API for the term "obama" in 2000:
 
     nyt.campaignFinance({'query' : 'obama', 'cycle' : '2000'}, function (resp) {
+      console.log(resp);
+    });
+
+### Best Sellers
+
+Browse the NY Times' best sellers lists for "vonnegut":
+
+    nyt.bestSellers({'author' : 'vonnegut'}, function (resp) {
+      console.log(resp);
+    });
+
+Browse the NY Times' best sellers API for the "vonnegut" at a given date:
+
+    nyt.bestSellers({'author' : 'vonnegut', 'date' : '2012-01-01'}, function (resp) {
       console.log(resp);
     });
