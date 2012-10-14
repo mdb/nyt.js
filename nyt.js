@@ -69,7 +69,7 @@ NYT.prototype.bestSellers = function (params, callback) {
   if (!paramsObj['api-key']) {
     throw new Error('No API Key specified');
   } else if (!author) {
-    throw new Error('No author specified.');
+    throw new Error('No author specified');
   } else {
     invoke('/svc/books/v2/lists/' + date + '/' + author + '.json', paramsObj, callback);
   }
