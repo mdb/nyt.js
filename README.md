@@ -30,7 +30,7 @@ Alternatively, you can set API keys on instantiation:
 
 ## Example Usage
 
-Note that node-nyt currently only supports the NY Times' articles search and campaign finance APIs.
+Note that node-nyt currently only supports the NY Times' articles search, campaign finance, and best sellers APIs.
 
 Stay posted for more features.
 
