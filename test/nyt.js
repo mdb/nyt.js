@@ -164,6 +164,39 @@ describe("NYT", function() {
           done();
         });
       });
+
+      it("defaults to calling the candidate search campaign finance API if now 'request' is specified in its params object", function (done) {
+       nock('http://api.nytimes.com')
+          .get('/svc/elections/us/v3/finances/2012/candidates/search.json?query=some_search&some_other_query=some_other_value&api-key=campaignFinanceKey')
+          .reply(200, {'finance_key':'finance_value'});
+
+        nyt.campaignFinance({'query': 'some_search', 'some_other_query': 'some_other_value'}, function(r) {
+          expect(r).to.eql({'finance_key':'finance_value'});
+          done();
+        });
+      });
+
+      context("campaignFinance is called with a params object whose 'request' property is set to 'candidateDetails'", function () {
+        nyt = require('../nyt')({campaignFinanceAPIKey: 'campaignFinanceKey'});
+
+        it("throws an error if no candidateID is specified", function (done) {
+          expect(function () {
+            nyt.campaignFinance({'request': 'candidateDetails'}, function() {});
+          }).to.throwError();        
+          done();
+        });
+
+        it("calls the proper API endpoint if a candidateID is specified", function (done) {
+          nock('http://api.nytimes.com')
+            .get('/svc/elections/us/v3/finances/2012/candidateID.json?api-key=campaignFinanceKey')
+            .reply(200, {'key':'value'});
+
+          nyt.campaignFinance({'request': 'candidateDetails', 'candidateID': 'candidateID'}, function (r) {
+            expect(r).to.eql({'key':'value'})
+          });
+          done();
+        });
+      });
     });
   });
 

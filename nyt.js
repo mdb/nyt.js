@@ -79,6 +79,7 @@ function invokeCampaignFinanceCall(params, callback) {
   var url;
   var request = params.request;
   var cycle = params.cycle ? params.cycle : '2012';
+  var candidateID;
 
   delete params.request;
 
@@ -87,8 +88,9 @@ function invokeCampaignFinanceCall(params, callback) {
     url = '/svc/elections/us/v3/finances/' + cycle + '/candidates/search.json';
   } else if (request === "candidateDetails") {
     if (params.candidateID) {
+      candidateID = params.candidateID;
       delete params.candidateID;
-      url = '/svc/elections/us/v3/finances/' + cycle + candidateID + '.json';
+      url = '/svc/elections/us/v3/finances/' + cycle + '/' + candidateID + '.json';
     } else {
       throw new Error('You must specify a canidate ID');
     }
