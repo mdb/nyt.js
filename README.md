@@ -44,15 +44,42 @@ Browse the NY Times' articles API for the term "obama":
 
 ### Campaign Finance
 
-Browse the NY Times' campaign finance API for the term "obama" in 2012:
+Note that the campaign finance calls default to the 2012 cycle if no 'cycle': 'SOME YEAR' is specified.
+
+Get the NY Times' campaign finance API for the term "obama" in 2012:
 
     nyt.campaignFinance({'query' : 'obama'}, function (resp) {
       console.log(resp);
     });
 
-Browse the NY Times' campaign finance API for the term "obama" in 2000:
+Get the NY Times' campaign finance API for the term "obama" in 2000:
 
     nyt.campaignFinance({'query' : 'obama', 'cycle' : '2000'}, function (resp) {
+      console.log(resp);
+    });
+
+Get 2000 "obama" campaign finance candidate details:
+
+    // Note that you can get a candidate's ID from the API call documented above
+    nyt.campaignFinance({'request' : 'candidateDetails', 'cycle' : '2000', 'candidateID' : 'P80003338'}, function (resp) {
+      console.log(resp);
+    });
+
+Get 2000 state candidate campaign finance details in VA:
+
+    nyt.campaignFinance({'request' : 'stateCandidates', 'cycle' : '2000', 'state' : 'va'}, function (resp) {
+      console.log(resp);
+    });
+
+Filter the above by chamber:
+
+    nyt.campaignFinance({'request' : 'stateCandidates', 'cycle' : '2000', 'state' : 'va', 'chamber': 'house'}, function (resp) {
+      console.log(resp);
+    });
+
+Get campaign finance data related to new candidates:
+
+    nyt.campaignFinance({'request' : 'newCandidates'}, function (resp) {
       console.log(resp);
     });
 
