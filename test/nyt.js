@@ -197,6 +197,50 @@ describe("NYT", function() {
           done();
         });
       });
+
+      context("campaignFinance is called with a params object whose 'request' property is set to 'stateCandidates'", function () {
+        nyt = require('../nyt')({campaignFinanceAPIKey: 'campaignFinanceKey'});
+
+        it("throws an error if no state is specified", function (done) {
+          expect(function () {
+            nyt.campaignFinance({'request':'stateCandidates'}, function () {});
+          }).to.throwError();
+          done();
+        });
+        
+        it("calls the proper API endpoint if a state is specified", function (done) {
+          nock('http://api.nytimes.com')
+            .get('/svc/elections/us/v3/finances/2012/seats/va.json?api-key=campaignFinanceKey')
+            .reply(200, {'key':'value'});
+
+          nyt.campaignFinance({'request': 'stateCandidates', 'state': 'va'}, function (r) {
+            expect(r).to.eql({'key':'value'})
+          });
+          done();
+        });
+
+        it("calls the proper API endpoint if a state and a chamber are specified", function (done) {
+          nock('http://api.nytimes.com')
+            .get('/svc/elections/us/v3/finances/2012/seats/va/house.json?api-key=campaignFinanceKey')
+            .reply(200, {'key':'value'});
+
+          nyt.campaignFinance({'request': 'stateCandidates', 'state': 'va', 'chamber': 'house'}, function (r) {
+            expect(r).to.eql({'key':'value'})
+          });
+          done();
+        });
+
+        it("calls the proper API endpoint if a state, chamber, and district are specified", function (done) {
+          nock('http://api.nytimes.com')
+            .get('/svc/elections/us/v3/finances/2012/seats/va/house/someDistrict.json?api-key=campaignFinanceKey')
+            .reply(200, {'key':'value'});
+
+          nyt.campaignFinance({'request': 'stateCandidates', 'state': 'va', 'chamber': 'house', 'district':'someDistrict'}, function (r) {
+            expect(r).to.eql({'key':'value'})
+          });
+          done();
+        });
+      });
     });
   });
 

@@ -79,24 +79,65 @@ function invokeCampaignFinanceCall(params, callback) {
   var url;
   var request = params.request;
   var cycle = params.cycle ? params.cycle : '2012';
-  var candidateID;
-
-  delete params.request;
 
   if (request === "candidateSearch") {
-    delete params.cycle;
     url = '/svc/elections/us/v3/finances/' + cycle + '/candidates/search.json';
   } else if (request === "candidateDetails") {
     if (params.candidateID) {
-      candidateID = params.candidateID;
-      delete params.candidateID;
-      url = '/svc/elections/us/v3/finances/' + cycle + '/' + candidateID + '.json';
+      url = '/svc/elections/us/v3/finances/' + cycle + '/' + params.candidateID + '.json';
     } else {
       throw new Error('You must specify a canidate ID');
     }
+  } else if (request === "stateCandidates") {
+    if (params.state) {
+      url = '/svc/elections/us/v3/finances/' + cycle + '/seats/' + buildStateCandidatesPath(params) + '.json';
+    } else {
+      throw new Error('You must specify a state');
+    }
   }
   
+  cleanFinanceParams(params);
   invoke(url, params, callback);
+}
+
+function cleanFinanceParams(params) {
+  if (params.request) {
+    delete params.request;
+  }
+  if (params.cycle) {
+    delete params.cycle;
+  }
+  if (params.candidateID) {
+    delete params.candidateID;
+  }
+  if (params.state) {
+    delete params.state;
+  }
+  if (params.chamber) {
+    delete params.chamber;
+  }
+  if (params.district) {
+    delete params.district;
+  }
+}
+
+function buildStateCandidatesPath(params) {
+  var pathArr = [];
+  var path;
+
+  if (params.state) {
+    pathArr.push(params.state);
+  }
+  if (params.chamber) {
+    pathArr.push(params.chamber);
+  }
+  if (params.district) {
+    pathArr.push(params.district);
+  }
+
+  path = pathArr.join("/");
+
+  return path;
 }
 
 function getFormattedAuthorName(name) {
