@@ -241,6 +241,19 @@ describe("NYT", function() {
           done();
         });
       });
+
+      context("campaignFinance is called with a params object whose 'request' property is set to 'newCandidates'", function () {
+        it("calls the proper API", function (done) {
+          nock('http://api.nytimes.com')
+            .get('/svc/elections/us/v3/finances/2012/candidates/new.json?api-key=campaignFinanceKey')
+            .reply(200, {'key':'value'});
+
+          nyt.campaignFinance({'request': 'newCandidates'}, function (r) {
+            expect(r).to.eql({'key':'value'})
+          });
+          done();
+        }); 
+      });
     });
   });
 

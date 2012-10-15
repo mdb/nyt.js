@@ -76,24 +76,26 @@ module.exports = function(opts) {
 
 // helpers
 function invokeCampaignFinanceCall(params, callback) {
-  var url;
+  var url = '/svc/elections/us/v3/finances/';
   var request = params.request;
   var cycle = params.cycle ? params.cycle : '2012';
 
   if (request === "candidateSearch") {
-    url = '/svc/elections/us/v3/finances/' + cycle + '/candidates/search.json';
+    url = url + cycle + '/candidates/search.json';
   } else if (request === "candidateDetails") {
     if (params.candidateID) {
-      url = '/svc/elections/us/v3/finances/' + cycle + '/' + params.candidateID + '.json';
+      url = url + cycle + '/' + params.candidateID + '.json';
     } else {
       throw new Error('You must specify a canidate ID');
     }
   } else if (request === "stateCandidates") {
     if (params.state) {
-      url = '/svc/elections/us/v3/finances/' + cycle + '/seats/' + buildStateCandidatesPath(params) + '.json';
+      url = url + cycle + '/seats/' + buildStateCandidatesPath(params) + '.json';
     } else {
       throw new Error('You must specify a state');
     }
+  } else if (request === "newCandidates") {
+    url = url + cycle + '/candidates/new.json';
   }
   
   cleanFinanceParams(params);
