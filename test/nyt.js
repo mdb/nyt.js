@@ -12,7 +12,7 @@ describe("NYT", function() {
     });
     
     it("is set to the value of the prototype's defaultSettings if no settings have been passed", function () {
-      nyt = require('../nyt')();
+      nyt = require('../nyt')();;
       expect(nyt.settings.articlesAPIKey).to.eql(undefined);
       expect(nyt.settings.campaignFinanceAPIKey).to.eql(undefined);
       expect(nyt.settings.bestSellersAPIKey).to.eql(undefined);
@@ -112,12 +112,11 @@ describe("NYT", function() {
         expect(typeof nyt.articles).to.eql('function');
       });
 
-      // WIP
-      xit("throws an an error specifying that an API key has not been set", function (done) {
-        nyt.articles({'query': 'some_search'}, function(r) {
-          expect(r).to.throwError("Error: No API Key specified");
-          done();
-        });
+      it("throws an an error specifying that an API key has not been set", function (done) {
+        expect(function() {
+          nyt.articles({'query': 'some_search'}, function(r) {});
+        }).to.throwError();
+        done();
       });
     });
   });
@@ -212,14 +211,24 @@ describe("NYT", function() {
         });
       });      
 
-      //WIP
       context("it is not passed an author", function () {
-        
+        it("throws an an error specifying that an author has not been specified", function (done) {
+          nyt = require('../nyt')({bestSellersAPIKey: 'bestSellersKey'});
+          expect(function() {
+            nyt.bestSellers({'foo': 'bar'}, function(r) {});
+          }).to.throwError();
+          done();
+        });
       });
 
-      //WIP
       context("NYT is not instantiated with a bestSellersAPIKey", function () {
-        
+        it("throws an an error specifying that an API key has not been specified", function (done) {
+          nyt = require('../nyt')();
+          expect(function() {
+            nyt.bestSellers({'author': 'king'}, function(r) {});
+          }).to.throwError();
+          done();
+        });        
       });
     });
   });

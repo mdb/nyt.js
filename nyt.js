@@ -77,12 +77,21 @@ module.exports = function(opts) {
 // helpers
 function invokeCampaignFinanceCall(params, callback) {
   var url;
+  var request = params.request;
   var cycle = params.cycle ? params.cycle : '2012';
 
-  if (params.request === "candidateSearch") {
+  delete params.request;
+
+  if (request === "candidateSearch") {
     delete params.cycle;
-    delete params.request;
     url = '/svc/elections/us/v3/finances/' + cycle + '/candidates/search.json';
+  } else if (request === "candidateDetails") {
+    if (params.candidateID) {
+      delete params.candidateID;
+      url = '/svc/elections/us/v3/finances/' + cycle + candidateID + '.json';
+    } else {
+      throw new Error('You must specify a canidate ID');
+    }
   }
   
   invoke(url, params, callback);
