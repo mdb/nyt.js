@@ -1,6 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/mdb/node-nyt.png)](http://travis-ci.org/mdb/node-nyt)
 
-# node-nyt 
+# nyt.js
 
 A simple Node.js module for working with the [New York Times Developer API](http://developer.nytimes.com).
 
