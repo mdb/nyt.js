@@ -14,9 +14,11 @@
   "devDependencies": {
     "mocha": "*",
     "nock": "*",
-    "expect.js": "*"
+    "expect.js": "*",
+    "grunt": ">=0.3.16",
+    "grunt-simple-mocha": ">=0.2.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "grunt --verbose"
   }
 }
