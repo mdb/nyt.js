@@ -12,7 +12,7 @@ describe("NYT", function() {
     });
     
     it("is set to the value of the prototype's defaultSettings if no settings have been passed", function () {
-      nyt = require('../nyt')();;
+      nyt = require('../nyt')();
       expect(nyt.settings.articlesAPIKey).to.eql(undefined);
       expect(nyt.settings.campaignFinanceAPIKey).to.eql(undefined);
       expect(nyt.settings.bestSellersAPIKey).to.eql(undefined);
@@ -192,7 +192,7 @@ describe("NYT", function() {
             .reply(200, {'key':'value'});
 
           nyt.campaignFinance({'request': 'candidateDetails', 'candidateID': 'candidateID'}, function (r) {
-            expect(r).to.eql({'key':'value'})
+            expect(r).to.eql({'key':'value'});
           });
           done();
         });
@@ -214,7 +214,7 @@ describe("NYT", function() {
             .reply(200, {'key':'value'});
 
           nyt.campaignFinance({'request': 'stateCandidates', 'state': 'va'}, function (r) {
-            expect(r).to.eql({'key':'value'})
+            expect(r).to.eql({'key':'value'});
           });
           done();
         });
@@ -225,7 +225,7 @@ describe("NYT", function() {
             .reply(200, {'key':'value'});
 
           nyt.campaignFinance({'request': 'stateCandidates', 'state': 'va', 'chamber': 'house'}, function (r) {
-            expect(r).to.eql({'key':'value'})
+            expect(r).to.eql({'key':'value'});
           });
           done();
         });
@@ -236,7 +236,7 @@ describe("NYT", function() {
             .reply(200, {'key':'value'});
 
           nyt.campaignFinance({'request': 'stateCandidates', 'state': 'va', 'chamber': 'house', 'district':'someDistrict'}, function (r) {
-            expect(r).to.eql({'key':'value'})
+            expect(r).to.eql({'key':'value'});
           });
           done();
         });
@@ -249,7 +249,7 @@ describe("NYT", function() {
             .reply(200, {'key':'value'});
 
           nyt.campaignFinance({'request': 'newCandidates'}, function (r) {
-            expect(r).to.eql({'key':'value'})
+            expect(r).to.eql({'key':'value'});
           });
           done();
         }); 
